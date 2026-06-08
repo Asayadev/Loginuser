@@ -1,427 +1,1105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growthxpress Instant Money Transfer</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Pinkkart - Delivery Boy Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: '-apple-system', BlinkMacSystemFont, sans-serif; }
-        body { background-color: #f4f6f9; padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; }
+        /* ========================================
+           SIMPLE CUSTOM CSS - NO TAILWIND
+           ======================================== */
         
-        /* Auth Card Styling */
-        .auth-card, .transfer-card { width: 100%; max-width: 420px; background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-top: 5px solid #1e88e5; margin-bottom: 20px; }
-        .auth-card { display: block; }
-        .transfer-card { display: none; } /* Initially hidden until login */
-        
-        .app-title { text-align: center; margin-bottom: 25px; }
-        .app-title h2 { color: #1e88e5; font-size: 22px; }
-        .app-title p { color: #757575; font-size: 11px; text-transform: uppercase; margin-top:3px; }
-        
-        /* Sender Profile View */
-        .sender-profile-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 12px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-        .sender-profile-box .name { font-weight: 700; color: #0d47a1; }
-        .sender-profile-box .bal { font-weight: 800; color: #2e7d32; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
 
-        .input-block { margin-bottom: 18px; }
-        .input-block label { display: block; font-size: 13px; font-weight: 600; color: #424242; margin-bottom: 8px; }
-        input[type="number"], input[type="password"], input[type="email"] { width: 100%; padding: 14px; border: 1px solid #cfd8dc; border-radius: 12px; font-size: 16px; background: #fafafa; outline: none; }
-        input:focus { border-color: #1e88e5; background: #fff; }
+        body {
+            background: #f3f4f6;
+        }
+
+        /* Container */
+        .app-container {
+            max-width: 28rem;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* ===== LOGIN SCREEN ===== */
+        .login-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+        }
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 22rem;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.3);
+        }
+        .login-icon {
+            width: 4rem;
+            height: 4rem;
+            background: #d1fae5;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+        .login-icon i {
+            font-size: 2rem;
+            color: #10b981;
+        }
+        .login-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        .login-subtitle {
+            font-size: 0.7rem;
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        .input-group {
+            margin-bottom: 0.75rem;
+        }
+        .input-label {
+            display: block;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 0.3rem;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-wrapper {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.7rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.7rem 0.7rem 0.7rem 2rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .input-field:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16,185,129,0.2);
+        }
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .login-btn {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .login-btn:hover {
+            background: #059669;
+        }
+        .login-btn:disabled {
+            background: #a7f3d0;
+            cursor: not-allowed;
+        }
+        .error-msg {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 0.75rem;
+            padding: 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: #0f172a;
+            color: white;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .header-info i {
+            color: #4ade80;
+            font-size: 1.25rem;
+        }
+        .rider-name {
+            font-size: 0.9rem;
+            font-weight: 900;
+        }
+        .rider-phone {
+            font-size: 0.6rem;
+            color: #4ade80;
+            font-weight: 700;
+        }
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-btn {
+            background: #334155;
+            padding: 0.35rem 0.7rem;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #10b981;
+        }
+        .logout-btn {
+            background: rgba(220,38,38,0.3);
+            padding: 0.35rem 0.7rem;
+            border-radius: 0.5rem;
+            color: #fca5a5;
+            font-size: 0.65rem;
+            font-weight: 900;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .stat-card.yellow { background: linear-gradient(135deg, #fef3c7, #ffedd5); border-color: #fde68a; }
+        .stat-card.purple { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); border-color: #d8b4fe; }
+        .stat-card.green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #6ee7b7; }
+        .stat-card.red { background: linear-gradient(135deg, #fee2e2, #fecaca); border-color: #fca5a5; }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+        .stat-number.yellow { color: #d97706; }
+        .stat-number.purple { color: #7c3aed; }
+        .stat-number.green { color: #059669; }
+        .stat-number.red { color: #dc2626; }
+        .stat-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+        .stat-label.yellow { color: #b45309; }
+        .stat-label.purple { color: #6d28d9; }
+        .stat-label.green { color: #047857; }
+        .stat-label.red { color: #b91c1c; }
+
+        /* ===== SEARCH ===== */
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.7rem;
+        }
+        .search-input {
+            width: 100%;
+            padding: 0.65rem 0.75rem 0.65rem 2rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #10b981;
+        }
+
+        /* ===== FILTER CHIPS ===== */
+        .filter-container {
+            display: flex;
+            gap: 0.35rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        .filter-chip {
+            padding: 0.3rem 0.9rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-chip.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        /* ===== ORDER CARD ===== */
+        .order-card {
+            border: 1px solid #f0f0f0;
+            border-radius: 1rem;
+            background: white;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .order-header {
+            padding: 0.7rem 0.9rem;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+        }
+        .order-header.pending { background: #fefce8; }
+        .order-header.confirmed { background: #eff6ff; }
+        .order-header.shipped { background: #f3e8ff; }
+        .order-header.delivered { background: #ecfdf5; }
+        .order-id {
+            font-family: monospace;
+            font-weight: 900;
+            color: #1e293b;
+        }
+        .order-date {
+            font-size: 0.6rem;
+            color: #9ca3af;
+        }
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+        .status-badge.pending { background: #fef3c7; color: #d97706; }
+        .status-badge.confirmed { background: #dbeafe; color: #2563eb; }
+        .status-badge.shipped { background: #e9d5ff; color: #7c3aed; }
+        .status-badge.delivered { background: #d1fae5; color: #059669; }
+        .order-body {
+            padding: 0.9rem;
+        }
+        .shop-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 0.25rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .customer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .customer-name {
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+        .call-btn {
+            background: #d1fae5;
+            color: #047857;
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .address-box {
+            background: #f8fafc;
+            padding: 0.6rem;
+            border-radius: 0.75rem;
+            margin: 0.5rem 0;
+        }
+        .address-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 0.2rem;
+        }
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+        .amount {
+            font-weight: 900;
+            color: #059669;
+            font-size: 1rem;
+        }
+        .cod-badge {
+            background: #ffedd5;
+            color: #ea580c;
+            font-size: 0.55rem;
+            font-weight: 900;
+            padding: 0.2rem 0.5rem;
+            border-radius: 9999px;
+        }
+        .status-select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: white;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .photo-btn {
+            background: #8b5cf6;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+        .cancel-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ===== EARNINGS TAB ===== */
+        .earning-card {
+            background: linear-gradient(135deg, #059669, #0d9488);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .earning-label {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .earning-amount {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0.25rem 0;
+        }
+        .withdraw-btn {
+            background: white;
+            color: #4f46e5;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 0.7rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            max-width: 24rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* ===== FLOATING BUTTON ===== */
+        .fab-qr {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1rem;
+            background: #10b981;
+            color: white;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 30;
+            border: none;
+        }
+
+        /* ===== UTILITIES ===== */
+        .p-4 { padding: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .text-center { text-align: center; }
+        .text-gray-400 { color: #9ca3af; }
+        .text-gray-500 { color: #6b7280; }
+        .text-xs { font-size: 0.7rem; }
+        .text-sm { font-size: 0.8rem; }
+        .font-bold { font-weight: 700; }
+        .flex { display: flex; }
+        .flex-1 { flex: 1; }
+        .gap-2 { gap: 0.5rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .hidden { display: none; }
+        .fixed { position: fixed; }
+        .inset-0 { top: 0; left: 0; right: 0; bottom: 0; }
+        .z-50 { z-index: 50; }
+        .cursor-pointer { cursor: pointer; }
+
+        /* Toast Message */
+        .toast {
+            position: fixed;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #9ca3af;
+        }
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         
-        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; display: block; text-align: center; }
-        .btn-verify { background-color: #ff9800; margin-top: 5px; }
-        .btn-send { background-color: #1e88e5; margin-top: 10px; }
-        .btn-send:disabled { background-color: #b0bec5; cursor: not-allowed; }
-        .btn-signup { background-color: #2e7d32; margin-top: 10px; }
-        .btn-google { background-color: #4285F4; margin-top: 10px; }
-        .btn-logout { background-color: #e53935; margin-top: 15px; padding: 10px; font-size: 14px; }
-
-        #receiverStatus { font-weight: bold; font-size: 14px; margin-top: 8px; display: block; text-align: center; padding: 8px; border-radius: 8px; }
-        
-        /* Modals Layout UI */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 999; justify-content: center; align-items: center; padding: 20px; }
-        .modal-card { background: white; padding: 30px; border-radius: 24px; text-align: center; width: 100%; max-width: 360px; }
-        .success-ring { width: 70px; height: 70px; background: #e8f5e9; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 15px; border: 3px solid #2e7d32; }
-        .success-ring svg { width: 40px; height: 40px; fill: none; stroke: #2e7d32; stroke-width: 4; }
-        .modal-card h4 { font-size: 20px; color: #2e7d32; margin-bottom: 8px; }
-        .btn-ok { background-color: #2e7d32; }
-
-        /* OTP Specific Style CSS */
-        .otp-input-field { width: 85%; padding: 12px; border: 2px solid #1e88e5; border-radius: 12px; font-size: 22px; font-weight: 800; text-align: center; letter-spacing: 6px; outline: none; margin: 15px 0; background: #f9f9f9; }
-        .btn-otp-confirm { background-color: #1565c0; margin-bottom: 8px; }
-        .btn-otp-cancel { background-color: #e0e0e0; color: #424242; }
-
-        /* New Flash Notification Show Card */
-        .show-otp-box { background: #fffde7; border: 2px dashed #fbc02d; padding: 15px; border-radius: 14px; font-size: 24px; font-weight: 800; color: #f57f17; letter-spacing: 4px; margin: 15px 0; }
-        .flex-btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-copy { background-color: #00bcd4; flex: 1; }
-        .btn-alert-close { background-color: #e53935; flex: 1; }
+        /* Camera Modal */
+        .camera-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 <body>
 
-<div class="auth-card" id="authCard">
-    <div class="app-title">
-        <h2>Growthxpress Auth</h2>
-        <p>Login or Create Account</p>
-    </div>
-    
-    <div class="input-block">
-        <label>Email Address:</label>
-        <input type="email" id="authEmail" placeholder="example@gmail.com">
-    </div>
-    
-    <div class="input-block">
-        <label>Password:</label>
-        <input type="password" id="authPassword" placeholder="••••••••">
-    </div>
-    
-    <button class="btn-action btn-send" onclick="loginWithEmail()">Login / Sign In</button>
-    <button class="btn-action btn-signup" onclick="signUpWithEmail()">Create New Account (Sign Up)</button>
-    <div style="text-align: center; margin: 10px 0; color: #757575; font-size: 13px;">OR</div>
-    <button class="btn-action btn-google" onclick="loginWithGoogle()">🌐 Sign In with Google (Gmail)</button>
-</div>
+<div id="toast" class="toast"><i class="fas fa-check-circle" style="color:#4ade80; margin-right:0.5rem;"></i> <span id="toastMsg">Status Updated!</span></div>
 
-<div id="systemAlertModal" class="modal-overlay">
-    <div class="modal-card" style="border-top: 5px solid #fbc02d;">
-        <div class="success-ring" style="background:#fffde7; border-color:#fbc02d;">
-            <svg viewBox="0 0 24 24" style="stroke:#fbc02d;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+<div id="app">
+    <!-- LOGIN SCREEN -->
+    <div v-if="!loggedInRider" class="fixed inset-0 login-bg" style="display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 999;">
+        <div class="login-card">
+            <div class="login-icon">
+                <i class="fas fa-shipping-fast"></i>
+            </div>
+            <h2 class="login-title">Pinkkart Rider</h2>
+            <p class="login-subtitle">Apna email aur password enter karein</p>
+            
+            <div v-if="loginError" class="error-msg">
+                <i class="fas fa-exclamation-circle"></i> {{ loginError }}
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" v-model="loginForm.email" @keyup.enter="handleRiderLogin" placeholder="registered@email.com" class="input-field">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input :type="showLoginPassword ? 'text' : 'password'" v-model="loginForm.password" @keyup.enter="handleRiderLogin" placeholder="Your password" class="input-field">
+                    <i @click="showLoginPassword = !showLoginPassword" :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="password-toggle"></i>
+                </div>
+            </div>
+            
+            <button @click="handleRiderLogin" :disabled="authLoading" class="login-btn">
+                <i v-if="authLoading" class="fas fa-circle-notch fa-spin"></i>
+                <i v-else class="fas fa-sign-in-alt"></i>
+                {{ authLoading ? 'Verifying...' : 'Login to Panel' }}
+            </button>
+            
+            <p style="text-align: center; font-size: 0.55rem; color: #94a3b8; margin-top: 1rem;">Contact admin to get credentials</p>
         </div>
-        <h4 style="color:#f57f17; font-size: 18px;">🔒 Growthxpress Security Alert</h4>
-        <p style="font-size:13px; color:#616161; margin-top:5px;">Your Secure Transfer Code Verification OTP is generated safely:</p>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <div v-if="loggedInRider" class="app-container">
         
-        <div id="lblDisplayOtp" class="show-otp-box">000000</div>
-        
-        <div class="flex-btn-group">
-            <button class="btn-action btn-copy" onclick="copyOtpToClipboard()">📋 Copy Code</button>
-            <button class="btn-action btn-alert-close" onclick="closeAlertAndOpenInput()">Proceed / OK</button>
+        <!-- Header -->
+        <div class="header">
+            <div class="header-info">
+                <i class="fas fa-shipping-fast"></i>
+                <div>
+                    <div class="rider-name">{{ loggedInRider.name }}</div>
+                    <div class="rider-phone">📞 {{ loggedInRider.phone }}</div>
+                </div>
+            </div>
+            <div class="header-buttons">
+                <button @click="activeTab = 'orders'" :class="activeTab == 'orders' ? 'tab-btn active' : 'tab-btn'">
+                    <i class="fas fa-box"></i>
+                </button>
+                <button @click="activeTab = 'earnings'" :class="activeTab == 'earnings' ? 'tab-btn active' : 'tab-btn'">
+                    <i class="fas fa-money-bill-wave"></i>
+                </button>
+                <button @click="handleRiderLogout" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div v-if="activeTab == 'orders'" class="p-4">
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card yellow">
+                    <div class="stat-number yellow">{{ orders.filter(o=>o.status=='pending').length }}</div>
+                    <div class="stat-label yellow">Pending</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-number purple">{{ orders.filter(o=>o.status=='shipped').length }}</div>
+                    <div class="stat-label purple">On Way</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-number green">{{ todayDeliveredCount }}</div>
+                    <div class="stat-label green">Today Done</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-number red">{{ orders.filter(o=>o.status=='cancelled'||o.status=='rejected').length }}</div>
+                    <div class="stat-label red">Cancelled</div>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" v-model="orderSearch" placeholder="Search by Name, Mobile, Order ID..." class="search-input">
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-container">
+                <button @click="orderStatusFilter = 'all'" :class="{'active': orderStatusFilter == 'all'}" class="filter-chip">All ({{ orders.length }})</button>
+                <button @click="orderStatusFilter = 'pending'" :class="{'active': orderStatusFilter == 'pending'}" class="filter-chip">Pending</button>
+                <button @click="orderStatusFilter = 'confirmed'" :class="{'active': orderStatusFilter == 'confirmed'}" class="filter-chip">Confirmed</button>
+                <button @click="orderStatusFilter = 'shipped'" :class="{'active': orderStatusFilter == 'shipped'}" class="filter-chip">Shipped</button>
+                <button @click="orderStatusFilter = 'delivered'" :class="{'active': orderStatusFilter == 'delivered'}" class="filter-chip">Delivered</button>
+                <button @click="orderStatusFilter = 'cancelled'" :class="{'active': orderStatusFilter == 'cancelled'}" class="filter-chip">Cancelled</button>
+            </div>
+
+            <!-- Orders List -->
+            <div class="space-y-4">
+                <div v-for="order in filteredOrders" :key="order.id" class="order-card">
+                    <div class="order-header" :class="getHeaderClass(order.status)">
+                        <div>
+                            <span class="order-id">#{{ getShortId(order.id) }}</span>
+                            <div class="order-date">{{ formatDate(order.date) }}</div>
+                        </div>
+                        <span class="status-badge" :class="getStatusClass(order.status)">{{ getStatusText(order.status) }}</span>
+                    </div>
+                    
+                    <div class="order-body">
+                        <div v-if="order.items && order.items[0] && order.items[0].shopkeeperName" class="shop-badge">
+                            <i class="fas fa-store"></i> {{ order.items[0].shopkeeperName }}
+                        </div>
+                        
+                        <div class="customer-info">
+                            <span class="customer-name"><i class="fas fa-user" style="color:#9ca3af; margin-right:0.3rem;"></i>{{ order.customerName }}</span>
+                            <a :href="'tel:' + order.customerPhone" class="call-btn">
+                                <i class="fas fa-phone-alt"></i> Call
+                            </a>
+                        </div>
+                        
+                        <div class="address-box">
+                            <div class="address-label">📍 Delivery Address:</div>
+                            <div style="font-weight: 500;">{{ order.customerAddress }}</div>
+                        </div>
+                        
+                        <div class="amount-row">
+                            <span class="cod-badge" v-if="!order.paymentMethod || order.paymentMethod === 'COD'">💵 COD</span>
+                            <span class="cod-badge" v-if="order.paymentMethod === 'ONLINE'" style="background:#d1fae5; color:#059669;">✅ Online Paid</span>
+                            <span class="amount">₹{{ Number(order.total).toFixed(2) }}</span>
+                        </div>
+                        
+                        <!-- Status Actions -->
+                        <div class="action-buttons">
+                            <select v-model="order.status" @change="mutateOrderStatus(order)" class="status-select" :disabled="order.status === 'cancelled'">
+                                <option value="pending">⏳ Pending</option>
+                                <option value="confirmed">✅ Confirmed</option>
+                                <option value="shipped">🚚 Out for Delivery</option>
+                                <option value="delivered">🏠 Delivered</option>
+                                <option value="cancelled">❌ Cancelled</option>
+                            </select>
+                            
+                            <button v-if="order.status === 'delivered' && !order.deliveryPhoto" @click="openCameraForOrder(order)" class="photo-btn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                            <span v-if="order.deliveryPhoto" style="background:#d1fae5; color:#059669; padding:0.5rem; border-radius:0.75rem; font-size:0.65rem;">
+                                <i class="fas fa-check-circle"></i> Photo
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="filteredOrders.length === 0" class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                    <div style="font-weight: 700;">Koi order assign nahi hua</div>
+                    <div style="font-size: 0.65rem; margin-top: 0.25rem;">Admin jab order assign karega, yahan dikhega</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EARNINGS TAB -->
+        <div v-if="activeTab == 'earnings'" class="p-4">
+            
+            <div class="earning-card">
+                <div class="earning-label">💰 Total Earning</div>
+                <div class="earning-amount">₹{{ totalGrossEarnings.toFixed(2) }}</div>
+                <div style="font-size: 0.7rem; opacity: 0.8;">{{ deliveredOrders.length }} deliveries × ₹{{ perDeliveryRate }} each</div>
+            </div>
+            
+            <div class="balance-card">
+                <div class="earning-label">🏦 Available Balance</div>
+                <div class="earning-amount">₹{{ totalEarnings.toFixed(2) }}</div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.65rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <span>Total Earned: ₹{{ totalGrossEarnings.toFixed(2) }}</span>
+                    <span>Withdrawn: ₹{{ totalWithdrawn.toFixed(2) }}</span>
+                </div>
+            </div>
+            
+            <button @click="showWithdrawModal = true" class="withdraw-btn" style="width: 100%; margin-bottom: 1rem;">
+                <i class="fas fa-paper-plane"></i> Withdraw Earnings
+            </button>
+            
+            <div class="earning-card" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                <div class="earning-label">⭐ Today's Earnings</div>
+                <div class="earning-amount">₹{{ todayEarnings.toFixed(2) }}</div>
+                <div style="font-size: 0.7rem;">{{ todayDeliveredCount }} deliveries today</div>
+            </div>
+            
+            <div style="margin-top: 1rem;">
+                <div style="font-weight: 700; color: #64748b; font-size: 0.7rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-history"></i> Recent Deliveries
+                </div>
+                <div v-for="order in recentDeliveredOrders.slice(0,10)" :key="order.id" style="background:#f8fafc; border-radius:0.75rem; padding:0.75rem; margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-family:monospace; font-weight:700; font-size:0.7rem;">#{{ getShortId(order.id) }}</div>
+                        <div style="font-size:0.6rem; color:#94a3b8;">{{ formatDate(order.deliveredAt || order.date) }}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-weight:900; color:#059669;">+₹{{ perDeliveryRate }}</div>
+                        <div v-if="order.deliveryPhoto" style="font-size:0.55rem; color:#8b5cf6;"><i class="fas fa-image"></i> POD</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating QR Button -->
+        <button @click="openQRScanner" class="fab-qr">
+            <i class="fas fa-qrcode"></i>
+        </button>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div v-if="showWithdrawModal" class="modal-overlay" @click.self="showWithdrawModal = false">
+        <div class="modal-content">
+            <div style="background: linear-gradient(135deg, #4f46e5, #6366f1); color:white; padding:1rem; border-radius:1rem 1rem 0 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="font-weight:700;"><i class="fas fa-wallet"></i> Withdraw Earnings</h3>
+                    <button @click="showWithdrawModal = false" style="background:rgba(255,255,255,0.2); border:none; color:white; width:2rem; height:2rem; border-radius:50%; cursor:pointer;">✕</button>
+                </div>
+            </div>
+            <div style="padding:1rem;">
+                <div style="background:#eef2ff; border-radius:0.75rem; padding:0.75rem; margin-bottom:1rem; display:flex; justify-content:space-between;">
+                    <span style="font-weight:700;">Available Balance</span>
+                    <span style="font-weight:900; color:#4f46e5;">₹{{ totalEarnings.toFixed(2) }}</span>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Withdraw Amount (₹)</label>
+                    <input type="number" v-model="withdrawAmount" :max="totalEarnings" placeholder="Enter amount" class="input-field">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">UPI ID *</label>
+                    <input type="text" v-model="withdrawUPI" placeholder="yourname@upi" class="input-field">
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <button @click="showWithdrawModal = false" style="flex:1; background:#f1f5f9; border:none; padding:0.7rem; border-radius:0.75rem; font-weight:700;">Cancel</button>
+                    <button @click="submitWithdrawRequest" :disabled="withdrawLoading" style="flex:1; background:#4f46e5; color:white; border:none; padding:0.7rem; border-radius:0.75rem; font-weight:700; cursor:pointer;">
+                        {{ withdrawLoading ? 'Sending...' : 'Send Request' }}
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-<div id="otpModal" class="modal-overlay">
-    <div class="modal-card">
-        <div class="success-ring" style="background:#e3f2fd; border-color:#1565c0;">
-            <svg viewBox="0 0 24 24" style="stroke:#1565c0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        </div>
-        <h4 style="color:#1565c0;">OTP Verification</h4>
-        <p style="font-size:13px; color:#616161; margin-top:5px;">Security verification ke liye screen par bheja gaya 6-digit OTP code enter karein.</p>
-        <input type="number" id="enteredOtp" class="otp-input-field" placeholder="000000" oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
-        <button class="btn-action btn-otp-confirm" onclick="confirmOtpAndPay()">Confirm & Verify OTP</button>
-        <button class="btn-action btn-otp-cancel" onclick="closeOtpModal()">Cancel</button>
-    </div>
-</div>
-
-<div id="successModal" class="modal-overlay">
-    <div class="modal-card">
-        <div class="success-ring"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-        <h4>Transfer Success!</h4>
-        <p id="successMessage" style="font-size:14px; color:#555; margin-bottom:20px;"></p>
-        <button class="btn-action btn-ok" onclick="closeModal()">Return / Ok</button>
-    </div>
-</div>
-
-<div class="transfer-card" id="transferCard">
-    <div class="app-title">
-        <h2>Growthxpress Pay</h2>
-        <p>Verified Secure Money Transfer</p>
-    </div>
-
-    <div id="senderProfileCard" class="sender-profile-box" style="display: none;">
-        <div>User: <span id="lblSenderName" class="name">---</span></div>
-        <div>Main Balance: <span id="lblSenderBalance" class="bal">₹0.00</span></div>
-    </div>
-
-    <div class="input-block">
-        <label>Your Paytm / Mobile Number:</label>
-        <input type="number" id="senderMobile" placeholder="Enter your mobile number">
-    </div>
-
-    <div class="input-block">
-        <label>Receiver's Paytm / Mobile Number:</label>
-        <input type="number" id="receiverMobile" placeholder="Enter friend's mobile number">
-        <button class="btn-action btn-verify" onclick="verifyAccounts()">Verify Destination Account</button>
-        <div id="receiverStatus"></div>
-    </div>
-
-    <div class="input-block">
-        <label>Amount to Send (₹):</label>
-        <input type="number" id="transferAmount" placeholder="Enter Amount" min="1">
-    </div>
-
-    <div class="input-block">
-        <label>Enter 6-Digit Security PIN:</label>
-        <input type="password" id="userSecurePin" placeholder="••••••" maxlength="6" oninput="if(this.value.length > 6) this.value = this.value.slice(0,6);">
-    </div>
-
-    <button class="btn-action btn-send" id="sendBtn" disabled onclick="triggerOtpProcess()">Confirm & Send Now</button>
-    
-    <button class="btn-action btn-logout" onclick="logoutUser()">Logout Account</button>
 </div>
 
 <script>
-    // Firebase Configuration Details
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDbVF9_RqXDXdIASOy2WgbwSmwuiowu2Bg", 
-        authDomain: "growthxpressx.firebaseapp.com", 
-        projectId: "growthxpressx",
-        databaseURL: "https://growthxpressx-default-rtdb.firebaseio.com",
-        storageBucket: "growthxpressx.appspot.com"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth(); 
+const firebaseConfig = {
+    apiKey: "AIzaSyDbVF9_RqXDXdIASOy2WgbwSmwuiowu2Bg",
+    authDomain: "growthxpressx.firebaseapp.com",
+    databaseURL: "https://growthxpressx-default-rtdb.firebaseio.com",
+    projectId: "growthxpressx",
+    storageBucket: "growthxpressx.appspot.com",
+    messagingSenderId: "967008233535",
+    appId: "1:967008233535:android:ac720ab7c8f7b10bf4308a"
+};
 
-    let senderUID = null, senderName = "", senderEmail = "", senderCurrentBalance = 0, senderDatabasePin = "";
-    let receiverUID = null, receiverName = "", receiverEmail = "", receiverCurrentBalance = 0;
-    let systemGeneratedOtp = null;
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
 
-    // --- Firebase Authentication Functions ---
-
-    // Monitor Auth State Change
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            document.getElementById("authCard").style.display = "none";
-            document.getElementById("transferCard").style.display = "block";
-            console.log("Logged in user:", user.email);
-        } else {
-            document.getElementById("authCard").style.display = "block";
-            document.getElementById("transferCard").style.display = "none";
-            resetUIOnLogout();
-        }
-    });
-
-    // 1. Naya Account Banane Ke Liye (Sign Up)
-    function signUpWithEmail() {
-        const email = document.getElementById("authEmail").value.trim();
-        const password = document.getElementById("authPassword").value.trim();
-
-        if(email === "" || password === "") {
-            alert("Account banane ke liye email aur password dalein!");
-            return;
-        }
-        if(password.length < 6) {
-            alert("Password kam se kam 6 characters ka hona chahiye!");
-            return;
-        }
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("Account Successfully Ban Gaya Aur Aap Login Ho Gaye!");
-            })
-            .catch((error) => {
-                alert("Sign Up Error: " + error.message);
-            });
-    }
-
-    // 2. Email & Password Se Login (Sign In)
-    function loginWithEmail() {
-        const email = document.getElementById("authEmail").value.trim();
-        const password = document.getElementById("authPassword").value.trim();
-
-        if(email === "" || password === "") {
-            alert("Kripya email aur password dono dalein!");
-            return;
-        }
-
-        auth.signInWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                alert("Login Successful!");
-            })
-            .catch((error) => {
-                alert("Login Error: " + error.message);
-            });
-    }
-
-    // 3. Google Sign-In (Gmail)
-    function loginWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                alert("Google Login Successful!");
-            })
-            .catch((error) => {
-                alert("Google Sign-In Error: " + error.message);
-            });
-    }
-
-    // 4. Logout User
-    function logoutUser() {
-        auth.signOut().then(() => {
-            alert("Logged out successfully.");
-        }).catch((error) => {
-            alert("Error logging out: " + error.message);
-        });
-    }
-
-    function resetUIOnLogout() {
-        document.getElementById("authEmail").value = "";
-        document.getElementById("authPassword").value = "";
-        closeModal();
-    }
-
-    // --- Original Transaction Dashboard Logic ---
-
-    function verifyAccounts() {
-        const sMobile = document.getElementById("senderMobile").value.trim();
-        const rMobile = document.getElementById("receiverMobile").value.trim();
-        const statusDiv = document.getElementById("receiverStatus");
-        const profileCard = document.getElementById("senderProfileCard");
-
-        if (sMobile === "" || rMobile === "") { alert("Dono number fill karein!"); return; }
-        if (sMobile === rMobile) { alert("Self-transfer block error!"); return; }
-
-        statusDiv.style.background = "#fff3e0"; statusDiv.innerText = "Verifying Accounts...";
-        profileCard.style.display = "none";
-
-        database.ref("All_Users").once('value').then((snapshot) => {
-            let sFound = false, rFound = false;
-
-            snapshot.forEach((childSnapshot) => {
-                const userData = childSnapshot.val();
-                if (userData && userData["paytm number"] == sMobile) {
-                    senderUID = childSnapshot.key; senderName = userData.name;
-                    senderEmail = userData.email || "noemail@gmail.com";
-                    senderCurrentBalance = parseFloat(userData.balance || 0);
-                    senderDatabasePin = userData.transferPin || "";
-                    sFound = true;
-                }
-                if (userData && userData["paytm number"] == rMobile) {
-                    receiverUID = childSnapshot.key; receiverName = userData.name;
-                    receiverEmail = userData.email || "noemail@gmail.com";
-                    receiverCurrentBalance = parseFloat(userData.balance || 0);
-                    rFound = true;
-                }
-            });
-
-            if (!sFound) {
-                statusDiv.style.background = "#ffebee"; statusDiv.innerText = "❌ Sender Not Registered";
-            } 
-            else if (!rFound) {
-                statusDiv.style.background = "#ffebee"; statusDiv.innerText = "❌ Receiver Not Found";
-            } 
-            else {
-                document.getElementById("lblSenderName").innerText = senderName;
-                document.getElementById("lblSenderBalance").innerText = "₹" + senderCurrentBalance.toFixed(2);
-                profileCard.style.display = "flex";
-
-                statusDiv.style.background = "#e8f5e9"; statusDiv.style.color = "#2e7d32";
-                statusDiv.innerText = "✔ Ready to Pay: " + receiverName;
-                document.getElementById("sendBtn").disabled = false;
+new Vue({
+    el: '#app',
+    data: {
+        loggedInRider: null,
+        authLoading: false,
+        loginForm: { email: '', password: '' },
+        loginError: '',
+        showLoginPassword: false,
+        activeTab: 'orders',
+        orders: [],
+        orderSearch: '',
+        orderStatusFilter: 'all',
+        perDeliveryRate: 40,
+        showScanner: false,
+        showWithdrawModal: false,
+        withdrawAmount: '',
+        withdrawUPI: '',
+        withdrawLoading: false,
+        withdrawRequests: [],
+        cameraActive: false,
+        currentOrderForPhoto: null
+    },
+    computed: {
+        filteredOrders() {
+            let filtered = this.orders;
+            if (this.orderStatusFilter !== 'all') {
+                filtered = filtered.filter(o => o.status === this.orderStatusFilter);
             }
-        });
-    }
-
-    function saveGlobalLog(typeText, amount, dateStr, userEmail) {
-        const ref = database.ref("history").push();
-        ref.set({ coin: String(amount), date: dateStr, email: userEmail, status: "Success", transKey: ref.key, type: typeText });
-    }
-
-    function triggerOtpProcess() {
-        const amt = parseFloat(document.getElementById("transferAmount").value);
-        const enteredPin = document.getElementById("userSecurePin").value.trim();
-
-        if (isNaN(amt) || amt <= 0) { alert("Valid amount enter karein!"); return; }
-        if (amt > senderCurrentBalance) { alert("Insufficient wallet balance!"); return; }
+            if (this.orderSearch) {
+                const q = this.orderSearch.toLowerCase();
+                filtered = filtered.filter(o => 
+                    this.getShortId(o.id).toLowerCase().includes(q) ||
+                    (o.customerName && o.customerName.toLowerCase().includes(q)) ||
+                    (o.customerPhone && o.customerPhone.includes(q))
+                );
+            }
+            return filtered;
+        },
+        deliveredOrders() {
+            return this.orders.filter(o => o.status === 'delivered' && 
+                (o.assignedRiderPhone === this.loggedInRider?.phone ||
+                 (o.deliveryBoyDetails && o.deliveryBoyDetails.phone === this.loggedInRider?.phone))
+            );
+        },
+        recentDeliveredOrders() {
+            return [...this.deliveredOrders].reverse();
+        },
+        totalWithdrawn() {
+            return this.withdrawRequests.filter(r => r.status === 'approved').reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+        },
+        totalGrossEarnings() {
+            return this.deliveredOrders.length * this.perDeliveryRate;
+        },
+        totalEarnings() {
+            return Math.max(0, this.totalGrossEarnings - this.totalWithdrawn);
+        },
+        todayDeliveredCount() {
+            const today = new Date().toDateString();
+            return this.deliveredOrders.filter(o => o.deliveredAt && new Date(o.deliveredAt).toDateString() === today).length;
+        },
+        todayEarnings() {
+            return this.todayDeliveredCount * this.perDeliveryRate;
+        }
+    },
+    methods: {
+        getShortId(id) { return id ? id.slice(-8).toUpperCase() : ''; },
+        formatDate(date) { return date ? new Date(date).toLocaleString('hi-IN') : ''; },
+        showToast(msg) { 
+            const t = document.getElementById('toast'); 
+            document.getElementById('toastMsg').innerText = msg; 
+            t.classList.add('show'); 
+            setTimeout(() => t.classList.remove('show'), 2500); 
+        },
+        getStatusText(s) {
+            const m = { pending: 'Pending', confirmed: 'Confirmed', shipped: 'Shipped', delivered: 'Delivered', cancelled: 'Cancelled', rejected: 'Rejected' };
+            return m[s] || s;
+        },
+        getStatusClass(s) {
+            const c = { pending: 'pending', confirmed: 'confirmed', shipped: 'shipped', delivered: 'delivered', cancelled: 'pending', rejected: 'pending' };
+            return c[s] || 'pending';
+        },
+        getHeaderClass(s) {
+            const c = { pending: 'pending', confirmed: 'confirmed', shipped: 'shipped', delivered: 'delivered' };
+            return c[s] || '';
+        },
         
-        if (senderDatabasePin === "") {
-            alert("Security Error: Is account ka PIN active nahi hai. Admin se setup karwayein!");
-            return;
-        }
-        if (enteredPin.length !== 6) {
-            alert("Kripya poora 6-digit ka Security PIN dalein!");
-            return;
-        }
-        if (enteredPin !== senderDatabasePin) {
-            alert("❌ Security PIN Invalid! Transaction blocked.");
-            return;
-        }
-
-        systemGeneratedOtp = Math.floor(100000 + Math.random() * 900000);
-        document.getElementById("lblDisplayOtp").innerText = systemGeneratedOtp;
-        document.getElementById("systemAlertModal").style.display = "flex";
-    }
-
-    function copyOtpToClipboard() {
-        if(!systemGeneratedOtp) return;
+        handleRiderLogin() {
+            if (!this.loginForm.email || !this.loginForm.password) {
+                this.loginError = 'Email aur password dono zaroori hain';
+                return;
+            }
+            this.loginError = '';
+            this.authLoading = true;
+            
+            auth.signInWithEmailAndPassword(this.loginForm.email.trim(), this.loginForm.password)
+                .then(async (userCredential) => {
+                    const user = userCredential.user;
+                    const snap = await database.ref('riders').once('value');
+                    let matched = null;
+                    snap.forEach(c => {
+                        const v = c.val();
+                        if (v.email && v.email.toLowerCase() === user.email.toLowerCase()) {
+                            matched = { id: c.key, name: v.name, phone: v.phone || '', email: v.email };
+                        }
+                    });
+                    this.authLoading = false;
+                    if (matched) {
+                        this.loggedInRider = matched;
+                        localStorage.setItem('sw_rider_session', JSON.stringify(matched));
+                        this.loadOrders();
+                        this.loadPerDeliveryRate();
+                        this.loadWithdrawRequests();
+                    } else {
+                        auth.signOut();
+                        this.loginError = 'Aapka rider account nahi mila. Admin se contact karein.';
+                    }
+                })
+                .catch((error) => {
+                    this.authLoading = false;
+                    this.loginError = 'Email ya Password galat hai!';
+                });
+        },
         
-        navigator.clipboard.writeText(String(systemGeneratedOtp)).then(() => {
-            alert("📋 OTP Code Copied Successfully!");
-        }).catch(() => {
-            const dummy = document.createElement("input");
-            document.body.appendChild(dummy);
-            dummy.value = systemGeneratedOtp;
-            dummy.select();
-            document.execCommand("copy");
-            document.body.removeChild(dummy);
-            alert("📋 OTP Code Copied Successfully!");
-        });
-    }
-
-    function closeAlertAndOpenInput() {
-        document.getElementById("systemAlertModal").style.display = "none";
-        document.getElementById("otpModal").style.display = "flex";
-    }
-
-    function confirmOtpAndPay() {
-        const userOtpInput = document.getElementById("enteredOtp").value.trim();
-
-        if (userOtpInput === "") {
-            alert("Kripya code field me validation OTP dalein!");
-            return;
-        }
-
-        if (userOtpInput !== String(systemGeneratedOtp)) {
-            alert("❌ OTP Code Invalid! Dubara sahi OTP daalein.");
-            return;
-        }
-
-        document.getElementById("otpModal").style.display = "none";
-        executeTransfer();
-    }
-
-    function executeTransfer() {
-        const amt = parseFloat(document.getElementById("transferAmount").value);
-
-        const now = new Date(); const pad = (num) => String(num).padStart(2, '0');
-        const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        async loadOrders() {
+            if (!this.loggedInRider) return;
+            const snap = await database.ref('orders').once('value');
+            const data = snap.val();
+            const allOrders = data ? Object.keys(data).map(k => ({ id: k, ...data[k] })) : [];
+            this.orders = allOrders.filter(o => {
+                return o.assignedRiderPhone === this.loggedInRider.phone ||
+                       (o.deliveryBoyDetails && o.deliveryBoyDetails.phone === this.loggedInRider.phone) ||
+                       (!o.assignedRider && !o.assignedRiderPhone && (o.status === 'pending' || o.status === 'confirmed'));
+            }).reverse();
+        },
         
-        let sBal = senderCurrentBalance - amt; let rBal = receiverCurrentBalance + amt;
-
-        database.ref("All_Users/" + senderUID).child("balance").set(String(sBal));
-        database.ref("All_Users/" + senderUID).child("history").child("TXX_"+Date.now()).set({ type: "Transfer to " + receiverName, amount: amt, timestamp: formattedDate, status: "Sent" });
+        loadPerDeliveryRate() {
+            database.ref('admin_settings/per_delivery_rate').on('value', snap => {
+                if (snap.exists()) this.perDeliveryRate = snap.val();
+            });
+        },
         
-        database.ref("All_Users/" + receiverUID).child("balance").set(String(rBal));
-        database.ref("All_Users/" + receiverUID).child("history").child("TXX_"+(Date.now()+1)).set({ type: "Received from " + senderName, amount: amt, timestamp: formattedDate, status: "Success" });
-
-        saveGlobalLog("Transfer to " + receiverName, amt, formattedDate, senderEmail);
-        saveGlobalLog("Received from " + senderName, amt, formattedDate, receiverEmail);
-
-        document.getElementById("successMessage").innerText = `Successfully transferred ₹${amt} to ${receiverName}!`;
-        document.getElementById("successModal").style.display = "flex";
+        loadWithdrawRequests() {
+            if (!this.loggedInRider) return;
+            database.ref('withdrawal_requests').orderByChild('riderId').equalTo(this.loggedInRider.id).on('value', snap => {
+                const d = snap.val();
+                this.withdrawRequests = d ? Object.keys(d).map(k => ({ id: k, ...d[k] })).reverse() : [];
+            });
+        },
+        
+        async mutateOrderStatus(order) {
+            if (order.status === 'delivered' && !order.deliveryPhoto) {
+                this.showToast('Photo lena zaroori hai!');
+                order.status = 'shipped';
+                return;
+            }
+            try {
+                const now = new Date().toISOString();
+                const payload = { 
+                    status: order.status, 
+                    assignedRiderPhone: this.loggedInRider.phone,
+                    assignedRiderName: this.loggedInRider.name
+                };
+                if (order.status === 'delivered') {
+                    payload.deliveredAt = now;
+                    payload.deliveryBoyDetails = { riderId: this.loggedInRider.id, name: this.loggedInRider.name, phone: this.loggedInRider.phone };
+                }
+                await database.ref(`orders/${order.id}`).update(payload);
+                this.showToast(`✅ Status: ${this.getStatusText(order.status)}`);
+                this.loadOrders();
+            } catch(e) { this.showToast('Error: ' + e.message); }
+        },
+        
+        openCameraForOrder(order) {
+            this.currentOrderForPhoto = order;
+            alert('Photo capture feature - Image upload integration pending');
+        },
+        
+        submitWithdrawRequest() {
+            if (!this.withdrawAmount || parseFloat(this.withdrawAmount) <= 0) {
+                this.showToast('Valid amount enter karein');
+                return;
+            }
+            if (!this.withdrawUPI.trim()) {
+                this.showToast('UPI ID required hai');
+                return;
+            }
+            if (parseFloat(this.withdrawAmount) > this.totalEarnings) {
+                this.showToast('Amount available balance se zyada hai');
+                return;
+            }
+            this.withdrawLoading = true;
+            database.ref('withdrawal_requests').push({
+                riderId: this.loggedInRider.id,
+                riderName: this.loggedInRider.name,
+                riderPhone: this.loggedInRider.phone,
+                amount: parseFloat(this.withdrawAmount),
+                upiId: this.withdrawUPI.trim(),
+                status: 'pending',
+                requestedAt: new Date().toISOString()
+            }).then(() => {
+                this.showToast('✅ Withdraw request bhej diya!');
+                this.showWithdrawModal = false;
+                this.withdrawAmount = '';
+                this.withdrawUPI = '';
+                this.loadWithdrawRequests();
+            }).catch(e => this.showToast('Error: ' + e.message))
+            .finally(() => this.withdrawLoading = false);
+        },
+        
+        openQRScanner() {
+            alert('QR Scanner - Scan order QR code');
+        },
+        
+        handleRiderLogout() {
+            auth.signOut().then(() => {
+                this.loggedInRider = null;
+                localStorage.removeItem('sw_rider_session');
+                this.loginForm = { email: '', password: '' };
+                this.orders = [];
+            });
+        }
+    },
+    mounted() {
+        const saved = localStorage.getItem('sw_rider_session');
+        if (saved) {
+            this.loggedInRider = JSON.parse(saved);
+            this.loadOrders();
+            this.loadPerDeliveryRate();
+            this.loadWithdrawRequests();
+        }
     }
-
-    function closeOtpModal() {
-        document.getElementById("otpModal").style.display = "none";
-        document.getElementById("systemAlertModal").style.display = "none";
-        document.getElementById("enteredOtp").value = "";
-        systemGeneratedOtp = null;
-    }
-
-    function closeModal() {
-        document.getElementById("successModal").style.display = "none";
-        document.getElementById("senderProfileCard").style.display = "none";
-        document.getElementById("senderMobile").value = "";
-        document.getElementById("transferAmount").value = "";
-        document.getElementById("userSecurePin").value = "";
-        document.getElementById("receiverMobile").value = "";
-        document.getElementById("receiverStatus").innerText = "";
-        document.getElementById("sendBtn").disabled = true;
-        closeOtpModal();
-    }
+});
 </script>
 </body>
 </html>
